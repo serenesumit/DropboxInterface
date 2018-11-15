@@ -1,0 +1,45 @@
+<div class="row top-margin">
+  <div class="col-md-12">
+    <a (click)="dropboxLogin()" class="text-center btn btn-success">Signup</a>
+  </div>
+</div>
+<div class="row">
+  <form [formGroup]="dropboxFrm" class="form-horizontal" (ngSubmit)="onSubmit(dropboxFrm)">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title"> Upload to Dropbox</h3>
+      </div>
+      <div class="panel-body">
+
+        <div class="form-group">
+          <input type="file" class="form-control-file" (change)="onFileChange($event)"
+                 [ngClass]="displayFieldCss('Files')" multiple>
+          <div class="invalid-feedback">
+            Please upload a document.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="Path">Path</label>
+          <input type="text" class="form-control" id="Path" placeholder="Path" formControlName="Path"
+                 [ngClass]="displayFieldCss('Path')">
+          <div class="invalid-feedback">
+            Path is required.
+          </div>
+        </div>
+
+
+        <div class="form-group d-flex justify-content-between">
+          <button type="submit" class="btn btn-success">Save</button>
+          <button type="button" class="btn btn-secondary" (click)="resetForm()">Reset</button>
+        </div>
+
+
+      </div>
+    </div>
+
+
+  </form>
+</div>
+
+
