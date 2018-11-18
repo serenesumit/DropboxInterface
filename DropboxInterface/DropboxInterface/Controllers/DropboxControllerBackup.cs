@@ -16,7 +16,7 @@ namespace DropboxInterface.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DropboxController : Controller
+    public class DropboxControllerBackup : Controller
     {
         string hostName = "", scheme = "", path = "", AccessToken = "";
 

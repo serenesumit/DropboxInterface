@@ -28,7 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="App\.angular-cli.json" />
     <None Include="App\e2e\tsconfig.e2e.json" />
     <None Include="App\package-lock.json" />
     <None Include="App\package.json" />
@@ -64,5 +63,7 @@
       </ResolvedFileToPublish>
     </ItemGroup>
   </Target>
+
+  <ProjectExtensions><VisualStudio><UserProperties App_4angular_1json__JSONSchema="http://jsonapi.org/schema" /></VisualStudio></ProjectExtensions>
 
 </Project>

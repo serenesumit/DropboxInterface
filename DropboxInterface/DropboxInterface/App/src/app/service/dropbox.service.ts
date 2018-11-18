@@ -17,14 +17,14 @@ export class DropboxService {
   }) {
     const formData: FormData = new FormData();
     formData.append('path', data.Path);
-  
+
     for (let i = 0; i < data.Files.length; i++) {
       formData.append('Files', data.Files[i], data.Files[i]['name']);
     }
-    
+
     console.log('form data variable :   ' + formData.toString());
 
-    return this.http.post(`${dropboxUrl}`, formData);
+    return this.http.post(`${dropboxUrl}`,formData);
   }
 
 }

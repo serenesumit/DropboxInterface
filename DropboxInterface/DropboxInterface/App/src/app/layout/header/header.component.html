@@ -1,0 +1,82 @@
+<mat-toolbar color="primary" class="mat-elevation-z50 header-menu">
+  <span>
+    <div fxLayout="column" fxLayoutAlign="center center">
+
+    </div>
+  </span>
+  <span class="header-spacer"></span>
+
+  <div fxShow="true" fxHide.lt-md="true">
+    <a routerLink="/home" mat-button>
+      <mat-icon>home</mat-icon> Home
+    </a>
+    <a href="#" mat-button>
+      <mat-icon>dashboard</mat-icon> Dashboard
+    </a>
+    <a href="#" mat-button>
+      <mat-icon>settings</mat-icon> Settings
+    </a>
+    <a href="#" mat-button>
+      <mat-icon>help</mat-icon> Help
+    </a>
+  </div>
+  <div fxShow="true" fxHide.lt-md="true">
+    <img alt="user-name" class="user-img" [matMenuTriggerFor]="menuProfile" src="../../../assets/images/profile.png">
+    <mat-menu #menuProfile="matMenu">
+      <button mat-menu-item>
+        <mat-icon>person</mat-icon> UserName
+      </button>
+      <mat-divider class="md-elevation-z10"></mat-divider>
+      <button mat-menu-item>
+        <mat-icon>power_settings_new</mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
+  </div>
+
+  <div fxShow="true" fxHide.gt-sm="true">
+    <button mat-button [matMenuTriggerFor]="menu">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+  </div>
+</mat-toolbar>
+
+
+<mat-menu #menu="matMenu">
+  <div fxLayout="column" fxLayoutAlign="center center">
+    <div fxFlex>
+      <img alt="user-name" class="user-img" src="/assets/images/profile.png">
+    </div>
+  </div>
+  <button mat-menu-item>
+    <mat-icon>person</mat-icon>
+    <span>Name</span>
+  </button>
+  <button mat-menu-item>
+    <mat-icon>home</mat-icon>
+    <span>Home</span>
+  </button>
+  <button mat-menu-item>
+    <mat-icon>dashboard</mat-icon>
+    <span>Dashboard</span>
+  </button>
+  <button mat-menu-item>
+    <mat-icon>settings</mat-icon>
+    <span>Settings</span>
+  </button>
+  <button mat-menu-item>
+    <mat-icon>help</mat-icon>
+    <span>Help</span>
+  </button>
+  <mat-divider class="md-elevation-z10"></mat-divider>
+  <button mat-menu-item>
+    <mat-icon>power_settings_new</mat-icon>
+    <span>Logout</span>
+  </button>
+
+</mat-menu>
+
+<mat-divider [inset]="true"></mat-divider>
+
+
+
