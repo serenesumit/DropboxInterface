@@ -59,6 +59,11 @@ namespace DropboxInterface.Controllers
         string RedirectUri = "https://localhost:44358/api/Dropbox/AuthAsync";
 
 
+        [HttpGet("[action]")]
+        public JsonResult CheckSession()
+        {
+            return Json(HttpContext.Session.GetString(AccessToken));
+        }
 
 
 
@@ -128,7 +133,7 @@ namespace DropboxInterface.Controllers
                     AppKey,
                     AppSecret,
                     RedirectUri);
-          
+
                 HttpContext.Session.SetString(AccessToken, response.AccessToken);
                 return RedirectToAction("Index");
             }
@@ -153,7 +158,7 @@ namespace DropboxInterface.Controllers
                 {
                     throw new Exception("AccessToken not generated !");
                 }
-           
+
                 var folders = DBClient.Files.ListFolderAsync(path);
                 var result = folders.Result;
                 return true;
@@ -167,7 +172,7 @@ namespace DropboxInterface.Controllers
 
         [HttpPost("[action]")]
         //public async Task<HttpResponseMessage> SaveFile()
-       public async Task<HttpResponseMessage> SaveFile(DropboxModel model)
+        public async Task<HttpResponseMessage> SaveFile(DropboxModel model)
         {
 
             HttpResponseMessage result = null;

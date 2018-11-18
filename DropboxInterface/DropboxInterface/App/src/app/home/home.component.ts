@@ -101,6 +101,18 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
 
+    this.http.get('https://localhost:44358/api/Dropbox/CheckSession')
+      .subscribe(
+        data => {
+
+          alert(data);
+
+        },
+        error => {
+          console.log("Error", error);
+        }
+      );
+
     this.displayedColumns = this.columnNames.map(x => x.id);
     this.createTable();
 
@@ -158,16 +170,15 @@ export class HomeComponent implements OnInit {
     }
   }
 
-
-  iframeUrl: any = "www.google.com";
+ 
   dropboxLogin() {
     var self = this;
     this.http.get('https://localhost:44358/api/Dropbox/GetDropboxLoginUrl')
       .subscribe(
         data => {
 
-          //window.location.href = data.toString();
-          this.iframeUrl = 'www.google.com'.toString();
+          window.location.href = data.toString();
+        
         },
         error => {
           console.log("Error", error);
