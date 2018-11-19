@@ -1,3 +1,4 @@
+using DropboxInterface.Helpers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -16,13 +17,22 @@ namespace DropboxInterface
             Configuration = configuration;
         }
 
+        public Startup(IHostingEnvironment env)
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+            Configuration = builder.Build();
+        }
+
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-
+           
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
@@ -32,6 +42,8 @@ namespace DropboxInterface
             services.AddSession(options => {
                 options.IdleTimeout = TimeSpan.FromMinutes(20); 
             });
+
+            services.Configure<DropboxConfig>(Configuration.GetSection("DropboxConfig"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

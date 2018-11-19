@@ -7,6 +7,9 @@ import { Component, OnInit, ViewChild, Pipe, PipeTransform } from '@angular/core
 import { MatTableDataSource, MatSort } from '@angular/material';
 import { DataSource } from '@angular/cdk/table';
 
+import { DropboxFolderModel } from '../model/dropbox-model';
+import { debug } from 'util';
+
 export interface PeriodicElement {
   name: string;
   position: number;
@@ -15,24 +18,8 @@ export interface PeriodicElement {
 }
 
 export interface Element {
-  position: number,
-  name: string,
-  weight: number,
-  symbol: string
+  folderName: string
 }
-
-const ELEMENT_DATA: PeriodicElement[] = [
-  { position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H' },
-  { position: 2, name: 'Helium', weight: 4.0026, symbol: 'He' },
-  { position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li' },
-  { position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be' },
-  { position: 5, name: 'Boron', weight: 10.811, symbol: 'B' },
-  { position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C' },
-  { position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N' },
-  { position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O' },
-  { position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F' },
-  { position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne' },
-];
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -47,32 +34,15 @@ const httpOptions = {
 })
 export class HomeComponent implements OnInit {
 
-  dataSource;
-  displayedColumns = [];
+
   @ViewChild(MatSort) sort: MatSort;
 
-  /**
-   * Pre-defined columns list for user table
-   */
-  columnNames = [{
-    id: "position",
-    value: "No."
 
-  }, {
-    id: "name",
-    value: "Name"
-  },
-  {
-    id: "weight",
-    value: "Weight"
-  },
-  {
-    id: "symbol",
-    value: "Symbol"
-  }];
-
+  dropboxFolderModel: DropboxFolderModel = null;
   dropboxFrm: FormGroup;
-
+  isFolderTableHidden: boolean = false;
+  IsAuthenticate: boolean = false;
+  backPath: string = '';
   formErrors = {
     'Path': '',
     'File': '',
@@ -100,21 +70,15 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit() {
-
-    this.http.get('https://localhost:44358/api/Dropbox/CheckSession')
-      .subscribe(
-        data => {
-
-          alert(data);
-
-        },
-        error => {
-          console.log("Error", error);
-        }
-      );
-
-    this.displayedColumns = this.columnNames.map(x => x.id);
-    this.createTable();
+    this.dropboxService.getToken().subscribe(data => {
+      if (data != null && typeof data !== "undefined") {
+        this.IsAuthenticate = true;
+      }
+    });
+    this.getFolder('');
+    if (this.dropboxFolderModel == null || typeof this.dropboxFolderModel === "undefined") {
+      this.isFolderTableHidden = true;
+    }
 
     this.dropboxFrm.valueChanges.subscribe((data) => {
 
@@ -122,21 +86,6 @@ export class HomeComponent implements OnInit {
 
 
   }
-
-  createTable() {
-    let tableArr: Element[] = [{ position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H' },
-    { position: 2, name: 'Helium', weight: 4.0026, symbol: 'He' },
-    { position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li' },
-    { position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be' },
-    { position: 5, name: 'Boron', weight: 10.811, symbol: 'B' },
-    { position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C' }
-    ];
-    this.dataSource = new MatTableDataSource(tableArr);
-    this.dataSource.sort = this.sort;
-  }
-
-
-
 
 
   isFieldValid(field: string): boolean {
@@ -170,25 +119,45 @@ export class HomeComponent implements OnInit {
     }
   }
 
- 
+
   dropboxLogin() {
-    var self = this;
-    this.http.get('https://localhost:44358/api/Dropbox/GetDropboxLoginUrl')
-      .subscribe(
-        data => {
-
-          window.location.href = data.toString();
-        
-        },
-        error => {
-          console.log("Error", error);
-        }
-      );
-
+    this.dropboxService.getDropboxLoginUrl().subscribe(data => {
+       window.location.href = data.toString();
+    });
   }
 
+  getBackFolders(path) {
+   
+    if (path != null && path !== '' && typeof path !== "undefined") {
+      var arr = path.split('/');
+      var newPath = '';
+      if (arr != null && typeof arr !== "undefined" && arr !== '') {
+        for (let i = 1; i < arr.length-1; i++) {
+          newPath = newPath + "/" + arr[i];
+        }
 
+        this.getFolder(newPath);
+      }
+    }
+  }
 
+  getFolder(path) {
+    this.dropboxFrm.patchValue({
+      Path: path
+    });
+    this.backPath = path;
+    this.dropboxService.getDropboxFolders(path).subscribe(dropboxFolderModel => {
+      this.dropboxFolderModel = dropboxFolderModel;
+      if (dropboxFolderModel != null && typeof dropboxFolderModel !== "undefined") {
+        console.log(dropboxFolderModel);
+
+        if (dropboxFolderModel.token != null && typeof dropboxFolderModel.token !== "undefined") {
+          this.IsAuthenticate = true;
+        }
+
+      }
+    });
+  }
 
   onSubmit(): void {
     console.log('Form Submitted!', this.dropboxFrm.value);

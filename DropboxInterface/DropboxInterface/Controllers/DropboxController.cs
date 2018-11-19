@@ -11,6 +11,7 @@ using DropboxInterface.Helpers;
 using DropboxInterface.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace DropboxInterface.Controllers
 {
@@ -18,46 +19,20 @@ namespace DropboxInterface.Controllers
     [ApiController]
     public class DropboxController : Controller
     {
-        string hostName = "", scheme = "", path = "", AccessToken = "";
+        string hostName = "", scheme = "", path = "", AccessToken = "AccessToken";
 
         #region Variables  
         private DropboxClient DBClient;
-        private string oauth2State;
-        List<string> folderPaths = new List<string>();
-        // private const string RedirectUri = "https://localhost/authorize"; // Same as we have configured Under [Application] -> settings -> redirect URIs.  
+
         #endregion
-        [HttpGet("Index")]
-        public async Task<IActionResult> Index()
+
+        private  IOptions<DropboxConfig> _config;
+
+        public DropboxController(IOptions<DropboxConfig> config)
         {
-            string test = HttpContext.Session.GetString(AccessToken);
-
-
-            DBClient = new DropboxClient(test);
-            var get = await DBClient.Users.GetCurrentAccountAsync();
-
-            Console.WriteLine(get.Name.DisplayName);
-
-            var list = await DBClient.Files.ListFolderAsync("", true);
-
-            foreach (var item in list.Entries)
-            {
-                if (item.IsFolder)
-                {
-                    folderPaths.Add(item.PathLower);
-                }
-                Console.WriteLine(item.Name);
-            }
-
-
-            this.Upload(folderPaths[0], "Sample-test.txt", @"D:\AppointmentLive2.txt");
-
-            return View();
+            this._config = config;
         }
-
-        string AppKey = "lthbutbf1rtovyx";
-        string AppSecret = "om3vwurqicmaopo";
-        string RedirectUri = "https://localhost:44358/api/Dropbox/AuthAsync";
-
+        
 
         [HttpGet("[action]")]
         public JsonResult CheckSession()
@@ -65,7 +40,37 @@ namespace DropboxInterface.Controllers
             return Json(HttpContext.Session.GetString(AccessToken));
         }
 
+        [HttpPost("[action]")]
+        public async Task<JsonResult> GetDropboxFolders()
+        {
+            string token = HttpContext.Session.GetString(AccessToken);
 
+            string path = Request.Form["Path"].ToString();
+
+            if (string.IsNullOrEmpty(path))
+            {
+                path = "";
+            }
+
+            DropboxFolderModel dropboxModel = new DropboxFolderModel();
+
+            using (DropboxClient DBClient = new DropboxClient(token))
+            {
+                var list = await DBClient.Files.ListFolderAsync(path, false);
+
+                foreach (var item in list.Entries)
+                {
+                    if (item.IsFolder)
+                    {
+                        dropboxModel.FolderPaths.Add(item.PathLower);
+                    }
+
+                }
+            }
+
+
+            return Json(dropboxModel);
+        }
 
         [HttpGet("[action]")]
         public JsonResult GetDropboxLoginUrl()
@@ -96,36 +101,15 @@ namespace DropboxInterface.Controllers
         }
 
 
-        /// <summary>  
-        /// Method to upload files on Dropbox  
-        /// </summary>  
-        /// <param name="UploadfolderPath"> Dropbox path where we want to upload files</param>  
-        /// <param name="UploadfileName"> File name to be created in Dropbox</param>  
-        /// <param name="SourceFilePath"> Local file path which we want to upload</param>  
-        /// <returns></returns>  
 
-        private bool Upload(string UploadfolderPath, string UploadfileName, string SourceFilePath)
-        {
-            try
-            {
-                using (var stream = new MemoryStream(System.IO.File.ReadAllBytes(SourceFilePath)))
-                {
-                    var response = DBClient.Files.UploadAsync(UploadfolderPath + "/" + UploadfileName, WriteMode.Overwrite.Instance, body: stream);
-                    var rest = response.Result; //Added to wait for the result from Async method  
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                return false;
-            }
-
-        }
 
         [HttpGet("[action]")]
         public async Task<ActionResult> AuthAsync(string code, string state)
         {
+            string AppKey = _config.Value.AppKey;
+            string AppSecret = _config.Value.AppSecret;
+            string RedirectUri = _config.Value.Redirect_Url;
+
             try
             {
                 var response = await DropboxOAuth2Helper.ProcessCodeFlowAsync(
@@ -135,7 +119,7 @@ namespace DropboxInterface.Controllers
                     RedirectUri);
 
                 HttpContext.Session.SetString(AccessToken, response.AccessToken);
-                return RedirectToAction("Index");
+                return RedirectPermanent("/");
             }
             catch (Exception e)
             {
@@ -167,19 +151,6 @@ namespace DropboxInterface.Controllers
             {
                 return false;
             }
-        }
-
-
-        [HttpPost("[action]")]
-        //public async Task<HttpResponseMessage> SaveFile()
-        public async Task<HttpResponseMessage> SaveFile(DropboxModel model)
-        {
-
-            HttpResponseMessage result = null;
-
-
-            return result;
-
         }
 
     }
