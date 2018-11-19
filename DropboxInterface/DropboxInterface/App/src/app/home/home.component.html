@@ -52,9 +52,10 @@
          fxLayoutAlign="center"
          fxLayoutGap="10px"
          fxLayoutGap.xs="0">
-      <div class="item item-1" fxFlex="15%">
+      <div class="item item-1" fxFlex="30%">
         <button type="submit" class="btn btn-success">Save</button>
         <button type="button" class="btn btn-secondary" (click)="resetForm()">Reset</button>
+        <button type="button" class="btn btn-secondary" (click)="editForm()" [hidden]="isEditButtonHidden">Edit</button>
       </div>
 
     </div>

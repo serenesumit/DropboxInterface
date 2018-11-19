@@ -9,6 +9,7 @@ import { MaterialModule } from './material/material.module';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { HomeComponent } from './home/home.component';
 import { DropboxService } from './service/dropbox.service';
+import { LocalStorageServiceService } from './service/local-storage-service.service';
 import { HeaderComponent } from './layout/header/header.component';
 import { FooterComponent } from './layout/footer/footer.component';
 
@@ -64,7 +65,7 @@ export class SafePipe implements PipeTransform {
       { path: '', component: HomeComponent, pathMatch: 'full' }
     ])
   ],
-  providers: [DropboxService],
+  providers: [DropboxService, LocalStorageServiceService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
